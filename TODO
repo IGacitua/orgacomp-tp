@@ -2,8 +2,8 @@ C: Lenguaje C
 A: Lenguaje Assembler x86
 
 1C - Abrir imagen original
-2C - Por cada pixel
-    2.1C - Separar en R G B
+2A - Por cada pixel
+    2.1A - Separar en R G B
         2.1.1A - Dividir cada uno por 255
             - La imagen guarda componentes RGB entre [0,255], mientras que el calculo requiere [0,1]
         2.1.2A - Realizar calculo CLINEAR en cada uno
