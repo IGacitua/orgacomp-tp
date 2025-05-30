@@ -1,0 +1,13 @@
+C: Lenguaje C
+A: Lenguaje Assembler x86
+
+1C - Abrir imagen original
+2C - Por cada pixel
+    2.1C - Separar en R G B
+        2.1.1A - Dividir cada uno por 255
+            - La imagen guarda componentes RGB entre [0,255], mientras que el calculo requiere [0,1]
+        2.1.2A - Realizar calculo CLINEAR en cada uno
+    2.2A - Obtener YLINEAR (Suma RGB lineares)
+    2.3A - Comprimir Ylinear para obtener Ysrgb
+    2.4C - Reemplazar el pixel por Ysrgb en R G B (todos identicos)
+3C - Mostrar ambas imagenes en pantalla
