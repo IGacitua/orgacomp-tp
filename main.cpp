@@ -1,2 +1,6 @@
-int main(int argc, char **argv) {}
+extern "C" void iterateImage();
 
+int main(int argc, char **argv)
+{
+    iterateImage();
+}
