@@ -2,13 +2,13 @@
 
 nasm processImage.s -f elf64
 nasm processPixel.s -f elf64
-g++ -c main.cpp
-g++ -o main.exe main.o processImage.o processPixel.o -no-pie
+g++ -c debug.cpp
+g++ -o debug.exe debug.o processImage.o processPixel.o -no-pie
 
 rm processImage.o
 rm processPixel.o
-rm main.o
+rm debug.o
 
-./main.exe
+./debug.exe
 
-rm main.exe
+rm debug.exe

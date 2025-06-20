@@ -10,6 +10,7 @@ section .data
     position   dq 0 ; To get the current position
 
     mensaje db "%i ", 0
+    newline db "", 10
 
 section .bss
 
@@ -71,6 +72,11 @@ section .text
                 cmp qword[rowCounter], rax
                 je return
                 jmp iteratePixels
+
+                mov rdi, newline
+                sub rsp, 8
+                call printf
+                add rsp, 8
 
                 return:
                     ret
