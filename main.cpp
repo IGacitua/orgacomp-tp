@@ -44,7 +44,7 @@
 using namespace std;
 using namespace cv;
 
-extern "C" void iterateImage(int **, long, long, long);
+extern "C" void iterateImage(int ***, long, long, long);
 
 int main(int argc, char **argv)
 {
@@ -69,19 +69,28 @@ int main(int argc, char **argv)
     int filas = imagen.rows;
     int columnas = imagen.cols;
     int canales = imagen.channels();
-    int **matrix = new int *[filas];
+    int*** matriz = new int**[filas];
 
-    for (int i = 0; i < filas; i++)
-    {
-        matrix[i] = reinterpret_cast<int *>(imagen.data + (i * columnas * canales));
+    for (int i = 0; i < filas; i++) {
+        matriz[i] = new int*[columnas];
+
+        for (int j = 0; j < columnas; j++) {
+            matriz[i][j] = reinterpret_cast<int*>(imagen.data + (i * imagen.step) + (j * canales));
+        }
     }
 
-    iterateImage(matrix, filas, columnas, canales);
+
+    iterateImage(matriz, filas, columnas, canales);
+
     namedWindow("Grayscale", WINDOW_AUTOSIZE);
     imshow("Grayscale", imagen);
     waitKey(0);
 
-    delete[] matrix;
+    for (int i = 0; i < filas; i++) {
+        delete[] matriz[i];
+    }
+
+    delete[] matriz;
 
     return 0;
 }
