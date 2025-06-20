@@ -9,8 +9,9 @@ section .data
     colCounter dq 0 ; Iteration number for columns loop
     position   dq 0 ; To get the current position
 
-    mensaje db "%i ", 0
-    newline db "", 10
+    mensaje db "%08x ", 0
+    space db ' ', 0
+    newline db "", 10, 0
 
 section .bss
 
@@ -40,43 +41,42 @@ section .text
             ; Get Position
             getPixel:
                 mov rbx, [matrix]
-                mov rbx, [rbx]
+                add rbx, [colCounter]
+
                 mov rax, [rowCounter]
-                imul rax, 32
-                add rbx, rax
+                imul rax, [cols]
+                imul rax, [chan]
 
-                mov rax, [colCounter]
-                imul rax, 4
                 add rbx, rax
-
                 mov [pixel], rbx
 
             callProcessor:
                 mov rdi, mensaje
-                mov rax, [pixel]
-                mov rsi, [rax]
+                mov rsi, [pixel]
+                mov rsi, [rsi]
                 sub rsp, 8
                 call printf
                 add rsp, 8
 
-            add qword[colCounter], 1
+            add qword[colCounter], 3
             mov rax, qword[cols]
+            imul rax, qword[chan]
             cmp qword[colCounter], rax
             je  increaseRows
             jmp iteratePixels
 
             increaseRows:
+                mov rdi, newline
+                sub rsp, 8
+                call printf
+                add rsp, 8
+
                 mov qword[colCounter], 0
                 add qword[rowCounter], 1
                 mov rax, qword[rows]
                 cmp qword[rowCounter], rax
                 je return
                 jmp iteratePixels
-
-                mov rdi, newline
-                sub rsp, 8
-                call printf
-                add rsp, 8
 
                 return:
                     ret
