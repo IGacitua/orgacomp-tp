@@ -19,7 +19,7 @@ int main (int argc, char** argv) {
 	if (argc != 2) {
 		printf ("Uso:  testopencv <imagen>\n");
 		return (-1);
-	}
+	}	
 	Mat image;
 	image = imread (argv[1], IMREAD_COLOR);
 	if (!image.data) {
