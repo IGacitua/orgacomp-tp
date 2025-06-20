@@ -30,16 +30,16 @@ section .text
     processPixel:
         ; Get parameters
         mov qword[pixelPointer], rdi
-
+        
         ; Get the content of the pixel
-        mov rsi, qword[pixelPointer]
-        lea rdi, pixelValue
-        mov rcx, 4 ; sizeof(int)
-        movsb
-
+        brea:
+        mov rsi, qword[pixelPointer] ; Pointer to the pixel
+        mov edi, dword[rsi]
+        ret
+        
         ; Processing!
         add dword[pixelValue], 1
-
+        
         ; Return the content of the pixel
         lea rsi, pixelValue
         mov rdi, qword[pixelPointer]

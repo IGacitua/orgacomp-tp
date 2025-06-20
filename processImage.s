@@ -1,4 +1,5 @@
 extern processPixel
+extern printf
 
 section .data
     ; Current position in iteration
@@ -7,6 +8,8 @@ section .data
     rowCounter dq 0 ; Iteration number for rows loop
     colCounter dq 0 ; Iteration number for columns loop
     position   dq 0 ; To get the current position
+
+    mensaje db "%i ", 0
 
 section .bss
 
@@ -29,23 +32,31 @@ section .text
         mov qword[cols],    rdx
         mov qword[chan],    rcx
 
-        mov byte[rowCounter], 0
-        mov byte[colCounter], 0
+        mov qword[rowCounter], 0
+        mov qword[colCounter], 0
 
         iteratePixels:
             ; Get Position
-            mov rax, rowCounter
-            imul rax, qword[cols]
-            add rax, colCounter
-            add rax, qword[matrix] ; Should have matrix + position -> The pixel we want!
+            getPixel:
+                mov rbx, [matrix]
+                mov rbx, [rbx]
+                mov rax, [rowCounter]
+                imul rax, 32
+                add rbx, rax
 
-            mov qword[pixel], rax
+                mov rax, [colCounter]
+                imul rax, 4
+                add rbx, rax
 
-            sub rsp, 8
-            mov rdi, qword[pixel] 
-            mov rsi, qword[chan]
-            ;call processPixel
-            add rsp, 8
+                mov [pixel], rbx
+
+            callProcessor:
+                mov rdi, mensaje
+                mov rax, [pixel]
+                mov rsi, [rax]
+                sub rsp, 8
+                call printf
+                add rsp, 8
 
             add qword[colCounter], 1
             mov rax, qword[cols]

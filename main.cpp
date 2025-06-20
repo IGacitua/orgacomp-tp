@@ -4,34 +4,41 @@
 
 #include <iostream>
 using namespace std;
-extern "C" void iterateImage(int **matrix, long rows, long columns, long channels);
+extern "C" void iterateImage(int **, long, long, long);
 
 int main(int argc, char **argv)
 {
-    int **matrix = new int *[3];
-    for (int i = 0; i < 3; i++)
+    int size = 2;
+
+    int **matrix = new int *[size];
+    for (int i = 0; i < size; i++)
     {
-        matrix[i] = new int[3];
+        matrix[i] = new int[size];
     };
     int counter = 0;
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < size; i++)
     {
-        for (int j = 0; j < 3; j++)
+        for (int j = 0; j < size; j++)
         {
             matrix[i][j] = counter;
             counter++;
         }
     }
-    iterateImage(matrix, 3, 3, 1);
+    cout << "Pointer to matrix: ";
+    cout << matrix;
+    cout << '\n';
 
-    for (int i = 0; i < 3; i++)
+    iterateImage(matrix, size, size, 1);
+    cout << '\n';
+
+    for (int i = 0; i < size; i++)
     {
-        for (int j = 0; j < 3; j++)
+        for (int j = 0; j < size; j++)
         {
-            cout << matrix[i][j];
+            cout << *(*(matrix + i) + j);
             cout << ' ';
         }
-        cout << '\n';
     }
+    cout << '\n';
     return 0;
 }
