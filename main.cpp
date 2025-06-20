@@ -71,32 +71,11 @@ int main(int argc, char **argv)
     int canales = imagen.channels();
     int ***matriz = new int **[filas];
 
-    cout << "Pointer: ";
-    cout << imagen.data;
-    cout << '\n';
-
-    for (int i = 0; i < filas; i++)
-    {
-        matriz[i] = new int *[columnas];
-
-        for (int j = 0; j < columnas; j++)
-        {
-            matriz[i][j] = reinterpret_cast<int *>(imagen.data + (i * (imagen.step)) + (j * canales));
-        }
-    }
-
     iterateImage(imagen.data, filas, columnas, canales);
 
     namedWindow("Grayscale", WINDOW_AUTOSIZE);
     imshow("Grayscale", imagen);
     waitKey(0);
-
-    for (int i = 0; i < filas; i++)
-    {
-        delete[] matriz[i];
-    }
-
-    delete[] matriz;
 
     return 0;
 }
