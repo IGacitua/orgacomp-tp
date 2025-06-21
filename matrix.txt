@@ -1,5 +1,0 @@
-[        j          j          j
-  i  [[r, g, b], [r, g, b], [r, g, b]],
-  i  [[r, g, b], [r, g, b], [r, g, b]],
-  i  [[r, g, b], [r, g, b], [r, g, b]]
-]
