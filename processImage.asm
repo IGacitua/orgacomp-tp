@@ -64,11 +64,6 @@ section .text
             jmp iteratePixels
 
             increaseRows:
-                mov rdi, newline
-                sub rsp, 8
-                call printf
-                add rsp, 8
-
                 mov qword[colCounter], 0
                 add qword[rowCounter], 1
                 mov rax, qword[rows]
