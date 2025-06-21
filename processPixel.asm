@@ -9,14 +9,14 @@ section .data
     YsrgbComparador dq 0.0031308
 
     ;Constantes de suma, resta, division, multiplicacion y potencia
-    const_1 dq 12.92
-    const_2 dq 1.055
-    const_3 dq 0.055 
-    const_4 dq 2.4
-    const_5 dq 255
+    const_12_920 dq 12.92
+    const_01_055 dq 1.055
+    const_00_055 dq 0.055 
+    const_02_400 dq 2.4
+    const_255 dq 255
 
     ;valor ayuda para potencia inversa
-    uno dq 1
+    const_one dq 1
 
     ;Constantes de multiplicacion para cada canal
     const_R:      dq 0.2126
@@ -71,9 +71,9 @@ section .text
 
 
         ;Lo convierto a precision doble; ieee754 doble para poder aplicar operaciones
-        cvtsi2sd xmm0, originalBlueValue; B 
-        cvtsi2sd xmm2, originalGreenValue; G      xmm1 esta reservado para el exponente en pow de C
-        cvtsi2sd xmm3, originalRedValue; R
+        cvtsi2sd xmm0, [originalBlueValue]; B 
+        cvtsi2sd xmm2, [originalGreenValue]; G      xmm1 esta reservado para el exponente en pow de C
+        cvtsi2sd xmm3, [originalRedValue]; R
 
 
         ;ejecuto funcion obtener c linear en cada valor
@@ -104,7 +104,7 @@ section .text
 
 
         ;agarro el valor y lo "devuelvo" al rango de 1byte [0,255]
-        mulsd xmm0, [const_5]
+        mulsd xmm0, [const_255]
 
 
         ;lo convierto a int y copio dentro de cada canal
@@ -122,7 +122,7 @@ section .text
     obtenerCLinear:
 
         ;divido por 255 para tener el valor entre 0 y 1
-        divsd xmm0, [const_5]
+        divsd xmm0, [const_255]
 
         ;comparo para ver que operaciones aplicar
         ucomisd xmm0, [CsrgbComparador]
@@ -134,11 +134,11 @@ section .text
 
     ;Si es mayor a CsrgbComparador se le aplican estas operaciones
     cLinearMayor:
-        addsd xmm0, [const_3]
-        divsd xmm0, [const_2]
+        addsd xmm0, [const_00_055]
+        divsd xmm0, [const_01_055]
 
         ;Paso a xmm1 el valor de la potencia
-        movsd xmm1, [const_4]
+        movsd xmm1, [const_02_400]
 
         sub rsp, 8
         call pow 
@@ -149,7 +149,7 @@ section .text
 
     ;Caso opuesto a mayor
     cLinearMenor:
-        divsd xmm0, [const_1]
+        divsd xmm0, [const_12_920]
 
         ret
 
@@ -176,20 +176,20 @@ section .text
     yLinealMayor:
 
         ;Paso a xmm1 el valor de la potencia nueva
-        movsd xmm1, [uno]
-        divsd xmm1, [const_4]
+        movsd xmm1, [const_one]
+        divsd xmm1, [const_02_400]
 
         sub rsp, 8
         call pow 
         add rsp, 8
 
-        mulsd xmm0, [const_2]
-        subsd xmm0, [const_3]
+        mulsd xmm0, [const_01_055]
+        subsd xmm0, [const_00_055]
 
         ret
     
     ;mismo que arriba
     yLinealMenor:
-        mulsd xmm0, [const_1]
+        mulsd xmm0, [const_12_920]
 
         ret
