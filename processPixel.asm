@@ -1,10 +1,34 @@
+extern pow
+
 section .data
+
+    ;Valor con el cual se compara contra en Clinear
+    CsrgbComparador dq 0.04045
+
+    ;Mismo para Ylinear
+    YsrgbComparador dq 0.0031308
+
+    ;Constantes de suma, resta, division, multiplicacion y potencia
+    const_1 dq 12.92
+    const_2 dq 1.055
+    const_3 dq 0.055 
+    const_4 dq 2.4
+    const_5 dq 255
+
+    ;valor ayuda para potencia inversa
+    uno dq 1
+
+    ;Constantes de multiplicacion para cada canal
+    const_R:      dq 0.2126
+    const_G:      dq 0.7152
+    const_B:      dq 0.0722
+
 
 section .bss
     ; Pixel
     ; Size of Double -> 8 Bytes
         pixelPointer resq 1
-        pixelValue resd 1
+        pixelValue resd 1                        ; no se usa
     ; Original
         originalBlueValue  resq 1
         originalGreenValue resq 1
@@ -18,45 +42,154 @@ section .bss
 
     ; Combined Pixel
 
-        linearIlluminance  resq 1
-        inverseIlluminance resq 1
+        linearIlluminance  resq 1                 ; no se usa
+        inverseIlluminance resq 1                   ;no se usa
 
 section .text
 
     ; Realiza todos los calculos necesarios al pixel
     ; Recibe la posición en la matriz del pixel
     ; NO devuelve, convierte el valor dentro del puntero a lo deseado
+
     global processPixel
+
     processPixel:
         ; Get parameters
         mov qword[pixelPointer], rdi
         
-        ; Get the content of the pixel
-        brea:
-        mov rsi, qword[pixelPointer] ; Pointer to the pixel
-        mov edi, dword[rsi]
-        ret
+        ;Extraigo cada valor del byte(canal)
+        mov rax, [pixelPointer]     
+
+        movzx rbx, byte [rax]       ; B
+        mov [originalBlueValue], rbx
+
+        movzx rbx, byte [rax + 1]   ; G
+        mov [originalGreenValue], rbx
+
+        movzx rbx, byte [rax + 2]   ; R
+        mov [originalRedValue], rbx
+
+
+        ;Lo convierto a precision doble; ieee754 doble para poder aplicar operaciones
+        cvtsi2sd xmm0, originalBlueValue; B 
+        cvtsi2sd xmm2, originalGreenValue; G      xmm1 esta reservado para el exponente en pow de C
+        cvtsi2sd xmm3, originalRedValue; R
+
+
+        ;ejecuto funcion obtener c linear en cada valor
+        call obtenerCLinear ; xmm0 = B
+        movsd [linearBlueValue], xmm0    
+
+        movsd xmm0, xmm2
+        call obtenerCLinear; xmm0 = G
+        movsd [linearGreenValue], xmm0    
+
+        movsd xmm0, xmm3
+        call obtenerCLinear; xmm0 = R
+        movsd [linearRedValue], xmm0    
+
+
+        ;devuelvo los valores a sus respectivos, arbitrarios, xmm-
+        movsd xmm0, [linearBlueValue]    
+        movsd xmm2, [linearGreenValue]    
+        movsd xmm3, [linearRedValue]
+
+
+        ;llamo funcion para obtener y lineal
+        call obtenerYLinear ; valor queda en xmm0
+
+
+        ;llamo funcion para obtener la luminancia comprimida a partir del y lineal
+        call obtenerLuminanciaComprimida
+
+
+        ;agarro el valor y lo "devuelvo" al rango de 1byte [0,255]
+        mulsd xmm0, [const_5]
+
+
+        ;lo convierto a int y copio dentro de cada canal
+        cvtsd2si rax, xmm0          
+
+        mov byte[pixelPointer], al ; B
+        mov byte[pixelPointer + 1], al ; G
+        mov byte[pixelPointer + 2], al ; R
         
-        ; Processing!
-        add dword[pixelValue], 1
-        
-        ; Return the content of the pixel
-        lea rsi, pixelValue
-        mov rdi, qword[pixelPointer]
-        mov rcx, 4 ; sizeof(int)
-        movsb
 
         ret
 
-    ; Separa el pixel en R G B
-    ; Divide por 255 (ver TODO)
-    separatePixel:
 
-    ; Calculo CLinear
-    convertToLinear:
+    ;obtiene C linear por 'x' canal
+    obtenerCLinear:
 
-    ; Suma los 3 valores para obtener la iluminación
-    getIlluminance:
+        ;divido por 255 para tener el valor entre 0 y 1
+        divsd xmm0, [const_5]
 
-    ; Invierte la iluminación a Yrgb
-    invertIlluminance:
+        ;comparo para ver que operaciones aplicar
+        ucomisd xmm0, [CsrgbComparador]
+
+        jae cLinearMayor
+        jb  cLinearMenor
+
+        ret
+
+    ;Si es mayor a CsrgbComparador se le aplican estas operaciones
+    cLinearMayor:
+        addsd xmm0, [const_3]
+        divsd xmm0, [const_2]
+
+        ;Paso a xmm1 el valor de la potencia
+        movsd xmm1, [const_4]
+
+        sub rsp, 8
+        call pow 
+        add rsp, 8
+
+        ret
+
+
+    ;Caso opuesto a mayor
+    cLinearMenor:
+        divsd xmm0, [const_1]
+
+        ret
+
+    
+    obtenerYLinear:
+        mulsd xmm0, [const_B]
+        mulsd xmm2, [const_G]
+        mulsd xmm3, [const_R]
+
+        addsd xmm0, xmm2
+        addsd xmm0, xmm3
+
+        ret
+
+    obtenerLuminanciaComprimida:
+        ucomisd xmm0, [YsrgbComparador]
+
+        jae yLinealMayor
+        jb  yLinealMenor
+
+        ret
+
+    ;misma funcion pero inversa que su contraparte cLinearMayor
+    yLinealMayor:
+
+        ;Paso a xmm1 el valor de la potencia nueva
+        movsd xmm1, [uno]
+        divsd xmm1, [const_4]
+
+        sub rsp, 8
+        call pow 
+        add rsp, 8
+
+        mulsd xmm0, [const_2]
+        subsd xmm0, [const_3]
+
+        ret
+    
+    ;mismo que arriba
+    yLinealMenor:
+        mulsd xmm0, [const_1]
+
+        ret
