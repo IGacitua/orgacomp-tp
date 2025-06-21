@@ -51,11 +51,9 @@ section .text
                 mov [pixel], rbx
 
             callProcessor:
-                mov rdi, mensaje
-                mov rsi, [pixel]
-                mov rsi, [rsi]
+                mov rdi, [pixel]
                 sub rsp, 8
-                call printf
+                call processPixel
                 add rsp, 8
 
             add qword[colCounter], 3
