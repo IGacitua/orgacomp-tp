@@ -110,9 +110,10 @@ section .text
         ;lo convierto a int y copio dentro de cada canal
         cvtsd2si rax, xmm0          
 
-        mov byte[pixelPointer], al ; B
-        mov byte[pixelPointer + 1], al ; G
-        mov byte[pixelPointer + 2], al ; R
+        mov rbx, [pixelPointer]
+        mov byte[rbx], al ; B
+        mov byte[rbx + 1], al ; G
+        mov byte[rbx + 2], al ; R
         
 
         ret
