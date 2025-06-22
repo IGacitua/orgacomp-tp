@@ -13,7 +13,7 @@ section .data
     const_01_055 dq 1.055
     const_00_055 dq 0.055 
     const_02_400 dq 2.4
-    const_255 dq 255
+    const_255 dq 255.0
 
     ;valor ayuda para potencia inversa
     const_one dq 1
