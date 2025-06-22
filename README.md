@@ -1,3 +1,3 @@
 # orgacomp-tp
 TP de Organización del Computador.
-To run: ./make.sh automatically Makes the project and runs it, then deletes the compiled file.
+To run: ./make.sh [path] automatically makes the .exe and runs it.

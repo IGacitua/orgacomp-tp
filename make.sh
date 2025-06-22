@@ -7,6 +7,6 @@ cmake ..
 cmake --build .
 cp Main ../main.exe
 cd ..
-./main.exe test.jpg
+./main.exe $1
 
 rm main.exe

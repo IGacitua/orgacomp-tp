@@ -7,7 +7,6 @@ section .data
 
     rowCounter dq 0 ; Iteration number for rows loop
     colCounter dq 0 ; Iteration number for columns loop
-    position   dq 0 ; To get the current position
 
 section .bss
 
@@ -36,36 +35,34 @@ section .text
         iteratePixels:
             ; Get Position
             getPixel:
-                mov rbx, [matrix]
-                add rbx, [colCounter]
+                mov rdi, [matrix]       ; Pointer to matrix
+                add rdi, [colCounter]   ; Move to desired column
 
-                mov rax, [rowCounter]
-                imul rax, [cols]
-                imul rax, [chan]
-
-                add rbx, rax
-                mov [pixel], rbx
+                mov rax, [rowCounter]   ; Desired Row
+                imul rax, [cols]        ; Multiplied by the column count
+                imul rax, [chan]        ; Multiplied by the channel count
+                add rdi, rax            ; Pointer to desired (row, column)
 
             callProcessor:
-                mov rdi, [pixel]
                 sub rsp, 8
-                call processPixel
+                call processPixel       ; Does all changes required to the pixel and replaces it
                 add rsp, 8
 
-            add qword[colCounter], 3
-            mov rax, qword[cols]
+            mov rax, [chan]
+            add qword[colCounter], rax  ; Moves the column counter CHANNELS positions, to get to the next pixel
+            mov rax, qword[cols]    
             imul rax, qword[chan]
-            cmp qword[colCounter], rax
-            je  increaseRows
-            jmp iteratePixels
+            cmp qword[colCounter], rax  ; Compares the column position with the last column in row
+            je  increaseRows            ; If it's equal, then we need to go to the next row, first column
+            jmp iteratePixels           ; Otherwise, loop
 
             increaseRows:
-                mov qword[colCounter], 0
-                add qword[rowCounter], 1
+                mov qword[colCounter], 0 ; Reset column counter
+                add qword[rowCounter], 1 ; Increase row counter by one
                 mov rax, qword[rows]
-                cmp qword[rowCounter], rax
+                cmp qword[rowCounter], rax  ; If row counter past the last row, then we finished.
                 je return
-                jmp iteratePixels
+                jmp iteratePixels   ; Otherwise, loop
 
                 return:
                     ret

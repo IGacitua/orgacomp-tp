@@ -2,21 +2,21 @@ extern pow
 
 section .data
 
-    ;Valor con el cual se compara contra en Clinear
+    ; Valor con el cual se compara CLinear
     CsrgbComparador dq 0.04045
 
-    ;Mismo para Ylinear
+    ; Idem para YLinear
     YsrgbComparador dq 0.0031308
 
-    ;Constantes de suma, resta, division, multiplicacion y potencia
+    ; Constantes para suma, resta, division, multiplicacion y potencia
     const_12_920 dq 12.92
     const_01_055 dq 1.055
     const_00_055 dq 0.055 
     const_02_400 dq 2.4
-    const_255 dq 255.00
+    const_255_00 dq 255.00
 
     ;valor ayuda para potencia inversa
-    const_one dq 1.00
+    const_01_000 dq 1.00
 
     ;Constantes de multiplicacion para cada canal
     const_R:      dq 0.2126
@@ -104,7 +104,7 @@ section .text
 
 
         ;agarro el valor y lo "devuelvo" al rango de 1byte [0,255]
-        mulsd xmm0, [const_255]
+        mulsd xmm0, [const_255_00]
 
 
         ;lo convierto a int y copio dentro de cada canal
@@ -123,7 +123,7 @@ section .text
     obtenerCLinear:
 
         ;divido por 255 para tener el valor entre 0 y 1
-        divsd xmm0, [const_255]
+        divsd xmm0, [const_255_00]
 
         ;comparo para ver que operaciones aplicar
         ucomisd xmm0, [CsrgbComparador]
@@ -141,9 +141,7 @@ section .text
         ;Paso a xmm1 el valor de la potencia
         movsd xmm1, [const_02_400]
 
-        sub rsp, 8
-        call pow
-        add rsp, 8
+        call pow ; No alineamos el stack porque ya está alineado
 
         ret
 
@@ -177,12 +175,10 @@ section .text
     yLinealMayor:
 
         ;Paso a xmm1 el valor de la potencia nueva
-        movsd xmm1, [const_one]
+        movsd xmm1, [const_01_000]
         divsd xmm1, [const_02_400]
 
-        sub rsp, 8
-        call pow
-        add rsp, 8
+        call pow ; No alineamos el stack porque ya está alineado
 
         mulsd xmm0, [const_01_055]
         subsd xmm0, [const_00_055]
