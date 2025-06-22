@@ -9,10 +9,6 @@ section .data
     colCounter dq 0 ; Iteration number for columns loop
     position   dq 0 ; To get the current position
 
-    mensaje db "%08x ", 0
-    space db ' ', 0
-    newline db "", 10, 0
-
 section .bss
 
     rows   resq 1 ; Rows in matrix.    

@@ -5,7 +5,7 @@ cd build
 
 cmake ..
 cmake --build .
-mv Main ../main.exe
+cp Main ../main.exe
 cd ..
 ./main.exe test.jpg
 
