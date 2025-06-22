@@ -13,10 +13,10 @@ section .data
     const_01_055 dq 1.055
     const_00_055 dq 0.055 
     const_02_400 dq 2.4
-    const_255 dq 255
+    const_255 dq 255.00
 
     ;valor ayuda para potencia inversa
-    const_one dq 1
+    const_one dq 1.00
 
     ;Constantes de multiplicacion para cada canal
     const_R:      dq 0.2126
@@ -72,27 +72,27 @@ section .text
 
         ;Lo convierto a precision doble; ieee754 doble para poder aplicar operaciones
         cvtsi2sd xmm0, [originalBlueValue]; B 
-        cvtsi2sd xmm2, [originalGreenValue]; G      xmm1 esta reservado para el exponente en pow de C
-        cvtsi2sd xmm3, [originalRedValue]; R
+        cvtsi2sd xmm14, [originalGreenValue]; G      xmm1 esta reservado para el exponente en pow de C
+        cvtsi2sd xmm15, [originalRedValue]; R
 
 
         ;ejecuto funcion obtener c linear en cada valor
         call obtenerCLinear ; xmm0 = B
         movsd [linearBlueValue], xmm0    
 
-        movsd xmm0, xmm2
+        movsd xmm0, xmm14
         call obtenerCLinear; xmm0 = G
         movsd [linearGreenValue], xmm0    
 
-        movsd xmm0, xmm3
+        movsd xmm0, xmm15
         call obtenerCLinear; xmm0 = R
         movsd [linearRedValue], xmm0    
 
 
         ;devuelvo los valores a sus respectivos, arbitrarios, xmm-
         movsd xmm0, [linearBlueValue]    
-        movsd xmm2, [linearGreenValue]    
-        movsd xmm3, [linearRedValue]
+        movsd xmm14, [linearGreenValue]    
+        movsd xmm15, [linearRedValue]
 
 
         ;llamo funcion para obtener y lineal
@@ -142,7 +142,7 @@ section .text
         movsd xmm1, [const_02_400]
 
         sub rsp, 8
-        call pow 
+        call pow
         add rsp, 8
 
         ret
@@ -157,11 +157,11 @@ section .text
     
     obtenerYLinear:
         mulsd xmm0, [const_B]
-        mulsd xmm2, [const_G]
-        mulsd xmm3, [const_R]
+        mulsd xmm14, [const_G]
+        mulsd xmm15, [const_R]
 
-        addsd xmm0, xmm2
-        addsd xmm0, xmm3
+        addsd xmm0, xmm14
+        addsd xmm0, xmm15
 
         ret
 
@@ -181,7 +181,7 @@ section .text
         divsd xmm1, [const_02_400]
 
         sub rsp, 8
-        call pow 
+        call pow
         add rsp, 8
 
         mulsd xmm0, [const_01_055]
