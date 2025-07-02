@@ -41,7 +41,7 @@ section .text
                 mov rax, [rowCounter]   ; Desired Row
                 imul rax, [cols]        ; Multiplied by the column count
                 imul rax, [chan]        ; Multiplied by the channel count
-                add rdi, rax            ; Pointer to desired (row, column)
+                add rdi, rax            ; Pointer to desired position
 
             callProcessor:
                 sub rsp, 8
